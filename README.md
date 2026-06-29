@@ -21,10 +21,47 @@ spec --> [LLM] gen RTL --> [LLM] gen self-checking testbench
 
 ## Setup
 
+### Quickstart on a new computer (do this in order)
+
+1. **Install Python 3.12** (see Prerequisites below).
+2. **Install Icarus Verilog v12** (see Prerequisites below).
+3. **Clone the repo:**
+   ```
+   git clone <your-repo-url>
+   cd verilog-assistant
+   ```
+4. **Create the environment:**
+   ```
+   ./setup.ps1                       # Windows (PowerShell)
+   .\.venv\Scripts\Activate.ps1
+   ```
+   (macOS/Linux: `bash setup.sh` then `source .venv/bin/activate`)
+5. **Add your DeepSeek API key** to the `.env` file that setup created (`DEEPSEEK_API_KEY=...`).
+6. **Verify it works (no key needed for this):**
+   ```
+   python -m verilog_assistant.sim.simulator examples/counter.v examples/counter_tb.v
+   pytest -q
+   ```
+   Expect `RESULT: PASS` and all tests passing. If `iverilog` is "not recognized", see the PATH note below.
+
 ### Prerequisites (install once per machine)
 
-1. **Python 3.12** from python.org. During install, check "Add python.exe to PATH" and "py launcher".
-2. **Icarus Verilog** (`iverilog` + `vvp` on PATH). Windows: https://bleyer.org/icarus/ (check "Add to PATH" in the installer). Optional: **GTKWave** to view `sim.vcd` waveforms.
+1. **Python 3.12** from python.org (https://www.python.org/downloads/release/python-3129/).
+   During install, **check "Add python.exe to PATH" and "py launcher"**.
+   Verify in a NEW terminal: `py -3.12 --version`.
+2. **Icarus Verilog v12** (the Verilog simulator: `iverilog` + `vvp`).
+   - Windows: download from https://bleyer.org/icarus/ . **Install v12** (not v11) -- the
+     project compiles with `-g2012` which needs v12's Verilog-2012 support.
+   - During install, **check "Add executable folder(s) to the user PATH"**.
+   - Verify in a NEW terminal: `iverilog -V` (should print version 12.0).
+3. **GTKWave** (optional, recommended) to view `sim.vcd` waveforms. Some Icarus
+   installers bundle it; otherwise install separately and it appears as `gtkwave`.
+
+> **PATH gotcha:** after installing Python or Icarus, **open a brand-new terminal
+> (or restart the IDE)** before running commands. Already-open terminals keep the
+> old PATH and will report "command not recognized" even though install succeeded.
+> On Windows you can confirm the Icarus folder is on PATH with:
+> `[Environment]::GetEnvironmentVariable("Path","User")`
 
 ### Environment (reproducible on any computer)
 
@@ -57,18 +94,32 @@ copy .env.example .env
 
 ### Working across multiple computers (git)
 
+**First time (push from this computer):** the repo is already `git init`-ed and
+committed locally. Create an empty repo on GitHub or Gitee (Gitee is faster from
+China), then connect and push:
 ```
-git init
-git add .
-git commit -m "Initial Verilog Assistant scaffold"
-# create an empty repo on GitHub/Gitee, then:
 git remote add origin <your-repo-url>
 git push -u origin main
 ```
 
-On another computer: `git clone <url>`, then run the setup script above. The
-`.venv` and `.env` are git-ignored, so each machine recreates them locally and
-your API key never leaves your machine.
+**On another computer (continue work):**
+```
+git clone <your-repo-url>
+cd verilog-assistant
+./setup.ps1                  # recreate .venv + install deps
+.\.venv\Scripts\Activate.ps1
+# then add your DeepSeek key to .env
+```
+You still need Python 3.12 + Icarus Verilog installed on that machine (see
+Prerequisites). The `.venv` and `.env` are git-ignored, so each machine recreates
+them locally and **your API key never leaves your machine / never goes to git**.
+
+**Saving your work each session:**
+```
+git add -A
+git commit -m "describe what you changed"
+git push
+```
 
 ## Run
 
