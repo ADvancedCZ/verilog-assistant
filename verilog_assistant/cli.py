@@ -42,6 +42,9 @@ def main() -> int:
     print(result.rtl)
     print("\n--- TESTBENCH ---\n")
     print(result.testbench)
+    if not result.passed:
+        print("\n--- TRANSCRIPT ---\n")
+        print("\n\n".join(result.transcript))
     return 0 if result.passed else 1
 
 
